@@ -1,5 +1,5 @@
 const express = require('express');
-const {homeFun, sellerCreate, allSellers, getOneSeller, updateSeller, deleteUser} = require('./controllers/controller');
+const {homeFun, sellerCreate, allSellers, getOneSeller, updateSeller, deleteUser, signupSeller, signinSeller} = require('./controllers/controller');
 const route = express.Router();
 
 
@@ -15,6 +15,11 @@ route.get('/getOneSeller/:id', getOneSeller)
 route.put('/update/:userId', updateSeller)
 
 route.delete('/delete/:id', deleteUser)
+
+route.post('/signup', signupSeller)
+
+route.post('/signin', signinSeller)
+
 
 
 

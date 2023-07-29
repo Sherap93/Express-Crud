@@ -1,6 +1,7 @@
 // Seller is the model imported from models folder
 // on this Seller model we will be applying all the functions/methods
 const Seller = require('../models/users')
+const bcrypt = require('bcrypt')
 
 
 const homeFun = (req, res) => {
@@ -55,6 +56,61 @@ const deleteUser = async (req, res) => {
 }
 
 
+const signupSeller = async (req, res) => {
+    // email is unique or not
+    // if the email is not found then it will raise an error
 
-module.exports = {homeFun, sellerCreate, allSellers, getOneSeller, updateSeller, deleteUser}    
+        // we must use findOne method
+        const sellerObj = await Seller.findOne({email : req.body.email}) //err
+        // if it returns True it means email exists
+        // if returns false email doesnt exist
+        if(sellerObj) {
+            console.log(sellerObj)
+            return res.status(403).json({msg : 'User with this email already Exists!!'})
+        }
+        else{
+
+            // we are getting error which means email is new, not founf DB
+            // hash our password
+            const hashpass = await bcrypt.hash(req.body.password, 10)
+    
+    
+            //create entry in DB
+            const newEntry = {email : req.body.email,
+            fullName : req.body.fullName,
+            password : hashpass}
+            await Seller.create(newEntry) // user will be created successfully
+            return res.status(201).json({msg : 'Account successfully created!!'})
+
+        }
+    
+    
+}
+
+
+
+const signinSeller = async (req, res) => {
+    
+    const sellerObj = await Seller.findOne({email : req.body.email})
+    if (sellerObj){
+        // email exists we can validate password now
+        // req.body.password // user's raw password
+        // sellerObj.password // right HASH password
+
+        const authPass = await bcrypt.compare(req.body.password, sellerObj.password)
+        if (authPass){
+            return res.json({msg : 'login successful'})
+        }
+        else{
+            return res.json({msg : 'password wrong'})
+        }
+    }
+    else{
+        // email does not exist
+        return res.status(403).json({msg : 'Account with this email does not exist'})
+    }
+}
+
+
+module.exports = {homeFun, sellerCreate, allSellers, getOneSeller, updateSeller, deleteUser, signupSeller, signinSeller}    
 
